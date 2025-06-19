@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: superset
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: superset-secrets
+  namespace: superset
+type: Opaque
+stringData:
+  SUPERSET_SECRET_KEY: "f3zD!#0j2V@l3e*K$7x1k3mPz9sN2wTq"
+  MYSQL_USER: "iituser"
+  MYSQL_PASSWORD: "12345@Abc"
+  MYSQL_HOST: "iit-mysql.mysql.database.azure.com"
+  MYSQL_DB: "supersetdb"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superset
+  namespace: superset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: superset
+  template:
+    metadata:
+      labels:
+        app: superset
+    spec:
+      containers:
+        - name: superset
+          image: apache/superset:latest
+          ports:
+            - containerPort: 8088
+          env:
+            - name: SUPERSET_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: superset-secrets
+                  key: SUPERSET_SECRET_KEY
+            - name: DATABASE_URL
+              value: >-
+                mysql+pymysql://superset:$(MYSQL_PASSWORD)@$(MYSQL_HOST)/supersetdb?charset=utf8mb4
+          envFrom:
+            - secretRef:
+                name: superset-secrets
+          command: ["/bin/sh"]
+          args:
+            - "-c"
+            - >
+              pip install clickhouse-connect &&
+              superset db upgrade &&
+              superset fab create-admin \
+                --username admin \
+                --firstname Superset \
+                --lastname Admin \
+                --email admin@superset.com \
+                --password admin &&
+              superset init &&
+              superset run -h 0.0.0.0 -p 8088
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: superset-service
+  namespace: superset
+spec:
+  selector:
+    app: superset
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8088
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: superset-ingress
+  namespace: superset
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: superset.iit.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: superset-service
+                port:
+                  number: 80

@@ -1,0 +1,20 @@
+# values.yaml
+grafana:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - grafana.iit.com
+    path: /
+    pathType: Prefix
+
+prometheus:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - prometheus.iit.com
+    path: /
+    pathType: Prefix

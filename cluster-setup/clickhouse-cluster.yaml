@@ -1,0 +1,132 @@
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: clickhouse
+---
+# # Persistent Volume
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: clickhouse-pv-1
+#   namespace: clickhouse
+# spec:
+#   capacity:
+#     storage: 1Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   persistentVolumeReclaimPolicy: Retain
+#   storageClassName: default
+#   hostPath:
+#     path: /mnt/data/clickhouse
+# ---
+# Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: clickhouse-pvc-2
+  namespace: clickhouse
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: default
+---
+# ClickHouseInstallation (Altinity Operator)
+
+apiVersion: "clickhouse.altinity.com/v1"
+kind: "ClickHouseInstallation"
+metadata:
+  name: "my-clickhouse"
+  namespace: clickhouse
+spec:
+  configuration:
+    settings:
+      listen_host: 0.0.0.0
+    users:
+      default/password: "12345"
+      default/networks/ip:
+        - "0.0.0.0/0"
+      default/profile: "default"
+      default/quotas: "default"
+    profiles:
+      default:
+        max_memory_usage: 10000000000
+        use_uncompressed_cache: 0
+        load_balancing: random
+    quotas:
+      default:
+        intervals:
+          - duration: 3600
+            queries: 0
+            errors: 0
+            result_rows: 0
+            read_rows: 0
+            execution_time: 0
+    clusters:
+      - name: "default"
+        layout:
+          shardsCount: 1
+          replicasCount: 1
+        templates:
+          podTemplate: clickhouse-pod-template
+  defaults:
+    templates:
+      podTemplate: clickhouse-pod-template
+  templates:
+    podTemplates:
+      - name: clickhouse-pod-template
+        spec:
+          containers:
+            - name: clickhouse
+              image: clickhouse/clickhouse-server:latest
+              volumeMounts:
+                - name: data
+                  mountPath: /var/lib/clickhouse
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: clickhouse-pvc-2
+
+---
+# ClusterIP Service (internal only)
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse-service
+  namespace: clickhouse
+spec:
+  type: ClusterIP
+  selector:
+    clickhouse.altinity.com/chi: my-clickhouse
+    clickhouse.altinity.com/app: chop
+    clickhouse.altinity.com/namespace: clickhouse
+    clickhouse.altinity.com/ready: "yes"
+  ports:
+    - name: http
+      port: 8123
+      targetPort: 8123
+---
+# Ingress for ClickHouse
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: clickhouse-ingress
+  namespace: clickhouse
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: clickhouse.iit.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: clickhouse-service
+                port:
+                  number: 8123

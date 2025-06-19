@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gms
+  namespace: argocd
+spec:
+  destination:
+    namespace: base-platform
+    server: https://kubernetes.default.svc
+  source:
+    path: new
+    repoURL: https://madhushankha.github.io/iit-helm-chart/
+    targetRevision: main
+  sources:
+    - repoURL: https://madhushankha.github.io/iit-helm-chart/
+      chart: game-service-02
+      targetRevision: 0.1.0
+      helm:
+        valueFiles:
+          - $values/global/iit-dev.yaml
+          - $values/app-configs/base-platform/02-game-service/base.yaml
+          - $values/app-configs/base-platform/02-game-service/dev-overlay.yaml
+    - repoURL: https://github.com/Madhushankha/iit-helm-chart
+      targetRevision: main
+      ref: values
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

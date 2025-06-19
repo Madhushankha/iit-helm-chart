@@ -1,0 +1,51 @@
+replicaCount: 1
+namespace: base-platform
+
+image:
+  repositoryName: lahiru1029/game-service-develop
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+livenessProbe:
+  enabled: true
+  httpGetPath: /health/live
+readinessProbe:
+  enabled: true
+  httpGetPath: /health/ready
+
+
+resources: 
+  limits:
+    cpu: 100m
+    memory: 200Mi
+  requests:
+    cpu: 100m
+    memory: 200Mi
+
+# tolerations:
+#   - key: "taint"
+#     operator: "Equal"
+#     value: "iit"
+#     effect: "NoSchedule"
+
+#   - key: "kubernetes.azure.com/scalesetpriority"
+#     operator: "Equal"
+#     value: "spot"
+#     effect: "NoSchedule"
+
+# affinity:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: "taint"
+#               operator: "In"
+#               values:
+#                 - "iit"
+#             - key: "kubernetes.azure.com/scalesetpriority"
+#               operator: "In"
+#               values:
+#                 - "spot"
