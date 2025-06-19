@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: base-platform
+  labels:
+    name: base-platform
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: analytics
+  labels:
+    name: analytics

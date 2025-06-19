@@ -1,0 +1,26 @@
+replicaCount: 1
+namespace: base-platform
+
+image:
+  repositoryName: lahiru1029/order-service
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+livenessProbe:
+  enabled: false
+  httpGetPath: /v1/health/live
+readinessProbe:
+  enabled: false
+  httpGetPath: /v1/health/ready
+
+
+resources: 
+  limits:
+    cpu: 500m
+    memory: 1500Mi
+  requests:
+    cpu: 500m
+    memory: 1500Mi

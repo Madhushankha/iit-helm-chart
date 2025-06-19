@@ -1,0 +1,35 @@
+{{- if .Values.kedaScale.enabled -}}
+{{- $chartName := .Chart.Name -}}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ $chartName }}-keda-scaledobject
+  namespace: {{ .Values.namespace }}
+spec:
+  pollingInterval: 60
+  cooldownPeriod: 300
+  idleReplicaCount: 0
+  minReplicaCount:  {{ .Values.kedaScale.minReplicas }}                              
+  maxReplicaCount:  {{ .Values.kedaScale.maxReplicas }}  
+  scaleTargetRef:
+    name: {{ $chartName }}
+  triggers:
+  {{- if .Values.kedaScale.targetMemoryUtilizationPercentage}}
+  - type: memory
+    metricType: Utilization 
+    metadata:
+      value: {{ .Values.kedaScale.targetMemoryUtilizationPercentage | quote }}
+  {{- end }}
+  {{- if .Values.kedaScale.targetCPUUtilizationPercentage }}
+  - type: cpu
+    metricType: Utilization 
+    metadata:
+      value: {{ .Values.kedaScale.targetCPUUtilizationPercentage | quote }}
+  {{- end }}
+  # - type: prometheus
+  #   metadata:
+  #     serverAddress: http://prometheus-kube-prometheus-prometheus.prometheus:9090/
+  #     metricName: nginx_ingress_controller_requests
+  #     threshold: "1"
+  #     query: sum(rate(nginx_ingress_controller_requests{path="/cts(/|$)(.*)"}[8m]))/sum(rate(nginx_ingress_controller_requests{path="/cts(/|$)(.*)"}[8m]))
+{{- end }}
