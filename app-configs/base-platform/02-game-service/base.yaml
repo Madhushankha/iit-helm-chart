@@ -1,0 +1,26 @@
+replicaCount: 1
+namespace: base-platform
+
+image:
+  repositoryName: lahiru1029/game-service-develop
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+livenessProbe:
+  enabled: true
+  httpGetPath: /health/live
+readinessProbe:
+  enabled: true
+  httpGetPath: /health/ready
+
+
+resources: 
+  limits:
+    cpu: 500m
+    memory: 1500Mi
+  requests:
+    cpu: 500m
+    memory: 1500Mi
