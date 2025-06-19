@@ -1,0 +1,28 @@
+# ingress:
+#   enabled: true
+#   hosts:
+#     - paths:
+#         - path: /
+#           pathType: Prefix
+
+# ingressHosts:
+#   - gms.dev.iit
+
+
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: lugx.dev.iit
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+
+envs:
+  - key: ANALYTICS_URL
+    value: "http://ans.dev.iit"

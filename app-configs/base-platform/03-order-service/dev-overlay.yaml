@@ -1,0 +1,34 @@
+# ingress:
+#   enabled: true
+#   hosts:
+#     - paths:
+#         - path: /
+#           pathType: Prefix
+#   tls:
+#     secretName: ord-tls
+
+# ingressHosts: 
+#   - ord.dev.iit
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: ods.dev.iit
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+  envs:
+  - key: ConnectionStrings__OrderStore
+    value: "Server=iit-mysql.mysql.database.azure.com;Port=3306;Database=OrderStoreDb;User=iituser;Password=12345@Abc;"
+# vaultSecrets:
+#   - key: Analytics__ConnectionString
+#     objectName: CNM-ANALYTICS-CONNECTION-STRING
+
+# envs:
+#   - key: Analytics__IsEnabled
+#     value: "true"

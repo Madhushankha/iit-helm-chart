@@ -1,0 +1,32 @@
+# ingress:
+#   enabled: true
+#   hosts:
+#     - paths:
+#         - path: /
+#           pathType: Prefix
+#   tls:
+#     secretName: ord-tls
+
+# ingressHosts: 
+#   - ord.dev.iit
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+  hosts:
+    - host: ans.dev.iit
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+# vaultSecrets:
+#   - key: Analytics__ConnectionString
+#     objectName: CNM-ANALYTICS-CONNECTION-STRING
+
+envs:
+  - key: ConnectionStrings__ClickHouse
+    value: "Host=clickhouse-service.clickhouse;Port=8123;User=default;Password=12345;Database=default"

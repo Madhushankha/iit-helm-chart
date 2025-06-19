@@ -1,0 +1,90 @@
+containerImageRegistry: docker.io
+imagePullPolicy: Always
+
+##### Ingress Configs ######
+ingressClassName: "nginx"
+ingressHosts: 
+  - dev.iit
+ingressAnnotations:
+  nginx.ingress.kubernetes.io/rewrite-target: /
+  nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+ingress:
+  enabled: false
+  hosts:
+    - paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    secretName: svc-tls
+#########################
+
+
+imagePullSecrets:
+  - name: regcred
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  linkerd.io/inject: enabled
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+kedaScale:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+resources: 
+  limits:
+    cpu: 300m
+    memory: 500Mi
+  requests:
+    cpu: 300m
+    memory: 500Mi
+
+keyVault:
+  name: new
+  userAssignedIdentityID: 123
+  tenantId: 124
+
+# tolerations:
+# - key: "kubernetes.azure.com/scalesetpriority"
+#   operator: "Equal"
+#   value: "spot"
+#   effect: "NoSchedule"
+
+# affinity:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: "kubernetes.azure.com/scalesetpriority"
+#               operator: "In"
+#               values:
+#                 - "spot"
