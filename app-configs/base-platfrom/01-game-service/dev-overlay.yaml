@@ -1,0 +1,9 @@
+ingress:
+  enabled: false
+  hosts:
+    - paths:
+        - path: /
+          pathType: Prefix
+
+ingressHosts: 
+  - gms.dev.iit
