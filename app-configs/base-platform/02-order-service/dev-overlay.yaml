@@ -1,0 +1,19 @@
+ingress:
+  enabled: true
+  hosts:
+    - paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    secretName: gms-tls
+
+ingressHosts: 
+  - gms.dev.iit
+
+# vaultSecrets:
+#   - key: Analytics__ConnectionString
+#     objectName: CNM-ANALYTICS-CONNECTION-STRING
+
+# envs:
+#   - key: Analytics__IsEnabled
+#     value: "true"
