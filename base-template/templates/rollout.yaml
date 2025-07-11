@@ -1,13 +1,18 @@
 {{- $chartName := .Chart.Name -}}
-
-apiVersion: apps/v1
-kind: Deployment
+# apiVersion: apps/v1
+# kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: {{ $chartName }}
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
 spec:
+  strategy:
+    blueGreen:
+      activeService: {{ $chartName }}
+      previewService: {{ $chartName }}-preview
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}

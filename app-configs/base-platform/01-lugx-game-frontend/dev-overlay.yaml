@@ -8,8 +8,6 @@
 # ingressHosts:
 #   - gms.dev.iit
 
-
-
 ingress:
   enabled: true
   className: nginx
